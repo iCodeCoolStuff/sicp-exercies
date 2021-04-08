@@ -1,0 +1,27 @@
+(phi^n - psi^n)/sqrt(5) = Fib(n)
+
+For n = 0
+
+(1 - 1)/sqrt(5) = 0
+Fib(0) = 0
+
+This works for Fib = 0
+
+For n:
+
+We are proving that (phi^n - psi^n)/sqrt(5) equals Fib(n), so assume the following
+two statements are true:
+
+(phi^n - psi^n)/sqrt(5) = Fib(n)
+(phi^n-1 - psi^n-1)/sqrt(5) = Fib(n-1)
+
+For n+1:
+
+Fib(n+1) = Fib(n) + Fib(n-1)
+(phi^n - psi^n)/sqrt(5) + (phi^n-1 - psi^n-1)/sqrt(5) = Fib(n) + Fib(n-1)
+(phi^n + phi^n-1)/sqrt(5) + (psi^n + psi^n-1)/sqrt(5) 
+(phi^(1+n-1) + phi^n-1)/sqrt(5) + (psi^(1+n-1) + psi^n-1)/sqrt(5) 
+(phi^(1+n-1) + phi^n-1)/sqrt(5) + (psi^(1+n-1) + psi^n-1)/sqrt(5) 
+((phi+1)*phi^n-1)/sqrt(5) + ((psi+1)*psi^n-1)/sqrt(5)
+(phi^2 * phi^n-1 - psi^2*psi^n-1)/sqrt(5)
+(phi^n+1 - psi^n+1)/sqrt(5)

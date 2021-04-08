@@ -1,0 +1,22 @@
+Too lazy to type out whole tree. Instead I will display combinations:
+
+11 pennies
+6 pennies and 1 nickel
+1 penny and 2 nickels
+1 penny and 1 dime
+
+As the amount goes up, the number of pennies that can represent the amount grows as large as the amount does.
+
+the number of half dollars  will grow n/50
+
+the number of quarters will grow n/25
+
+the number of dimes will grow n /10
+
+The number of nickels will be grow n/3
+
+The number of pennies will grow n
+
+The amount of space required will grow with Theta(n) because there can be at most n pennies.
+
+On the contrary, the amount of steps required will grow with Theta(n^2). The amount of operations executed for each combination of coins will increase with a decreasing number of combinations of pennies. Each instance of (cc h 1) will execute k*n times. The number of these types of executions increases with the size of n, so the number of steps of the count-change function grows with Theta(n^2)
