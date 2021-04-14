@@ -1,0 +1,1 @@
+The interpreter has to evalutate (expmod base (/ exp 2) m) each time it wants to multiply. Each of these (expmod base (/ exp 2) m) processes takes Theta(logn) time. Summing up the number of processes spawned results in a Theta(n) process.
