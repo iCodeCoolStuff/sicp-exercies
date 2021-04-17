@@ -16,10 +16,10 @@
 	    (* base (expmod base (- e 1) m))
 	    m))))
 
-(define fermat-fails-all-a n)
-  (cond ((= n 1) false)
-	(else (if (= expmod a n n) true (fermat 
-
-
-(define (fermat-test n)
-  (
+(define (fermat-fails-all-a n)
+  (define (fermat a)
+    (cond ((= a 1) true)
+	  ((not (= (expmod a n n) a)) false)
+    	  (else (fermat (- a 1)))))
+      ;(else (if (not (= (expmod a n n) a)) false (fermat (- a 1))))))
+  (fermat (- n 1)))
