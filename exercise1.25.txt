@@ -9,4 +9,7 @@
             (* base (expmod base (- e 1) m))
             m))))
 
+No. For very large values of base and e, the amount of memory it would take to store the result of base^e would be very large. Plus, it would take a relatively large amount of time to compute the remainder of such a large value of base^3 mod m.
+
+Previous answer:
 No. It would take Theta(n) time to search for the remainder of base^exp and m using fast-exp over expmod.
