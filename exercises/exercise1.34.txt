@@ -1,0 +1,9 @@
+(define (f g) (g 2))
+(f f)
+
+The interpreter would throw an error. By evaulating (f f) we get:
+(f f)
+(f 2)
+(2 2)
+
+Since (2 2) cannot be evaluated, the interpreter would throw an error.
