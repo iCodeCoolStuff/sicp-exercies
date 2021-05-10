@@ -1,6 +1,6 @@
 (define (filtered-accumulate filter combiner null-value term a next b)
   (cond ((> a b) null-value)
-        ((filter a b) (combiner (term a) (filtered-accumulate filter combiner null-value term (next a) next b)))
+        ((filter a) (combiner (term a) (filtered-accumulate filter combiner null-value term (next a) next b)))
 	(else (filtered-accumulate filter combiner null-value term (next a) next b))
   )
 )
@@ -12,7 +12,7 @@
 	(else (find-divisor n (+ test-divisor 1)))))
 (define (divides? a b) (= (remainder b a) 0))
 
-(define (prime? n throwaway)
+(define (prime? n)
   (= n (smallest-divisor n)))
 
 (define (inc x) (+ x 1))
@@ -23,14 +23,12 @@
 
 (define (identity x) x)
 
-(define (gcd-1 x y)
-  (cond ((= x y) #f)
-        ((= (gcd x y) 1) #t)
-  )
-)
-
-(define (relative-prime? x y) (= (gcd x y) 1))
-
-(define (test2)
+(define (product-of-relative-prime n)
+  (define (relative-prime? i) (= (gcd i n) 1))
   (filtered-accumulate relative-prime? * 1 identity 1 inc 10)
 )
+
+(define (test2)
+  (product-of-relative-prime 10)
+)
+
