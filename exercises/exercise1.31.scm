@@ -27,3 +27,19 @@
 (define (product-rec term a next b)
   (if (= a b) b (* (term a) (product-rec term (next a) next b)))
 )
+
+; (pi n) isn't incorrect, but it isn't defined in terms of product. This is a correction:
+
+
+(define (pi-term n)
+  (* (/ (* 2 n)
+	(- (* 2 n) 1))
+     (/ (* 2 n)
+	(+ (* 2 n) 1))
+  )
+)
+
+
+(define (pi-corrected n)
+  (* 2 (product pi-term 1 inc n))
+)
