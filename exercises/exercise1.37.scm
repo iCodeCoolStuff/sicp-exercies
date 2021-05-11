@@ -24,8 +24,3 @@
 (define (test2)
   (cont-frac-iter (lambda (i) 1.0) (lambda (i) 1.0) 12)
 )
-
-
-(define (negative x)
-  (- x)
-)
