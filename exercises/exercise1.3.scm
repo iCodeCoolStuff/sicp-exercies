@@ -1,0 +1,11 @@
+(define (sum-two-largest-squared a b c)
+  (+ (cond ((and (>= a b) (> a c)) (* a a))
+	   ((and (>= b a) (> b c)) (* b b))
+	   (else (* c c)))
+
+     (cond ((and (>= a b) (> b c)) (* b b))
+	   ((and (>= a c) (> c b)) (* c c))
+	   ((and (>= b a) (> a c)) (* a a))
+	   ((and (>= b c) (> c a)) (* c c))
+	   ((and (>= c a) (> a b)) (* a a))
+	   (else (* b b)))))
