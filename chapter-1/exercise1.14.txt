@@ -20,3 +20,5 @@ The number of pennies will grow n
 The amount of space required will grow with Theta(n) because there can be at most n pennies.
 
 On the contrary, the amount of steps required will grow with Theta(n^2). The amount of operations executed for each combination of coins will increase with a decreasing number of combinations of pennies. Each instance of (cc h 1) will execute k*n times. The number of these types of executions increases with the size of n, so the number of steps of the count-change function grows with Theta(n^2)
+
+Correction: This process grows with Theta(n^5). The reason for this is that the order of growth corresponds to the number of demnominations of coins. However, it is possible to implement this procedure in Theta(n^2)

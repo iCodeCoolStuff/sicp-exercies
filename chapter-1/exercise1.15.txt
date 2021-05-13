@@ -1,4 +1,2 @@
 a. 5 times. 12.15 * (1/3)^5 = .05
 b. The order of growth in the space of operations is Theta(n). The order of growth in the number of operations is Theta(n).
-
-Correction: This process grows with Theta(n^5). The reason for this is that the order of growth corresponds to the number of demnominations of coins. It is possible to think that the order of growth is 5n, but at larger values of n, this process grows faster than 5n.
