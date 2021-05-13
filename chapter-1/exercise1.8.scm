@@ -1,17 +1,13 @@
-(define (average x y)
-  (/ (+ x y ) 2)
-)
-
 (define (improve guess x)
-  (average guess (/ x guess))
+  (/ (+ (/ x (square guess)) (* 2 guess)) 3)
 )
 
-(define (good-enough? guess last-guess)
-  (< (abs (/ (- last-guess guess) guess)) 0.001)
+(define (good-enough? guess x)
+  (< (abs (- (* guess guess guess) x)) 0.001)
 )
 
-(define (sqrt-iter guess last-guess x)
-  (if (good-enough? guess last-guess)
+(define (cube-iter guess x)
+  (if (good-enough? guess x)
     guess
-    (sqrt-iter (improve guess x) guess x))
+    (cube-iter (improve guess x) x))
 )
