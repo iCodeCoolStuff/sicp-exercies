@@ -7,23 +7,23 @@
 ; ----------------------------------
 ; Implementation 1
 
-(define (origin frame)
+(define (origin-frame frame)
   (car frame))
 
-(define (edge1 frame)
+(define (edge1-frame frame)
   (cadr frame))
 
-(define (edge2 frame)
+(define (edge2-frame frame)
   (cadr (cdr frame)))
 
 ; ----------------------------------
 ; Implementation 2
 
-(define (origin frame)
+(define (origin-frame frame)
   (car frame))
 
-(define (edge1 frame)
+(define (edge1-frame frame)
   (cadr frame))
 
-(define (edge2 frame)
+(define (edge2-frame frame)
   (cdr (cdr frame)))
