@@ -1,5 +1,8 @@
 (define (element-of-set? x set)
-  (memq x set))
+  (cond ((null? (car set)) #f)
+        ((= (car set) x)   #t)
+        ((> (car set) x)   #f)
+	(else (element-of-set? x (cdr set)))))
 
 (define (adjoin-set x set)
   (cons x set))
