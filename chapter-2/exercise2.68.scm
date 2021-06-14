@@ -64,8 +64,8 @@
     (cond ((leaf? branch) (if (eq? (symbol-leaf branch) s) 
 			      bits 
 			      '()))
-          ((symbol-in? s tree) (append (find-iter (left-branch branch) (adjoin-bits 0 bits))
-				       (find-iter (right-branch branch) (adjoin-bits 1 bits))))
+          ((symbol-in? s tree) (append (find-iter (left-branch branch) (adjoin-bits '0 bits))
+				       (find-iter (right-branch branch) (adjoin-bits '1 bits))))
 	  (else '())))
   (find-iter tree ()))
 	
