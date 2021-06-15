@@ -15,14 +15,3 @@
 ; For a system where new types must often be added, explicit dispatch is optimal because relatively few functions keep track
 ; of the number of types to check. For a system where new operations must be added, message passing is optimal. New operations
 ; have relatively few type checks and new procedures don't interfere with the representation of new types.
-;
-;
-;
-;
-;
-;
-;
-;
-;
-;
-;
