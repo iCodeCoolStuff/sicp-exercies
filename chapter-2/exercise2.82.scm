@@ -16,3 +16,5 @@
     (if coercion
 	(coercion element)
 	(error "No coercion for type->type" element-type type))))
+
+; This strategy is not sufficient when you are dividing a real number by a complex number.
