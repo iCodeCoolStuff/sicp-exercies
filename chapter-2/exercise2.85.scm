@@ -102,8 +102,8 @@
 		    (type2 (cadr type-tags))
 		    (a1 (car args))
 		    (a2 (cadr args)))
-		(cond ((eq? type1 type2)     (drop (apply-generic op a1 a2)))
-		      ((higher? type1 type2) (drop (apply-generic op a1 (raise a2))))
-		      (else                  (drop (apply-generic op (raise a1) a2)))))
+		(cond ((higher? type1 type2) (drop (apply-generic op a1 (raise a2))))
+		      ((higher? type2 type1) (drop (apply-generic op (raise a1) a2)))
+		      (else (error "No method for these types" (list op type-tags)))))
 		(error "No method for these types"
 		       (list op type-tags)))))))
