@@ -14,6 +14,8 @@
     (cons (var term-list)))
   (define (term-list p) (cdr p))
   (define (variable  p) (car p))
+  (define (negate-term term)
+    (make-term (order term) (mul (coeff term) -1)))
 
   (define (tag-poly x) (cons 'sparse x))
   (define (tag-term x) (cons 'sparse-term x))
@@ -27,6 +29,7 @@
   (put 'order           'sparse-term order)
   (put 'coeff           'sparse-term coeff)
   (put 'adjoin-term     '(sparse-term sparse-list) adjoin-term)
+  (put 'negate          'sparse-term  negate-term)
   (put 'make            'sparse (lambda (var term-list) (tag-poly (make-sparse-polynomial var term-list))))
 'done)
 
@@ -53,6 +56,8 @@
     (cons (var term-list)))
   (define (term-list p) (cdr p))
   (define (variable  p) (car p))
+  (define (negate-term term)
+    (make-term (order term) (mul (coeff term) -1)))
 
   (define (tag-poly x) (cons 'dense x))
   (define (tag-term x) (cons 'dense-term x))
@@ -66,6 +71,7 @@
   (put 'order           'dense-term  order)
   (put 'coeff           'dense-term  coeff)
   (put 'adjoin-term     '(dense-term dense-list) adjoin-term)
+  (put 'negate          'dense-term  negate-term)
   (put 'make            '(variable   dense-list) (lambda (var term-list) (tag (make-dense-polynomial var term-list))))
 'done)
 
@@ -75,12 +81,14 @@
   (define (make-sparse-polynomial variable term-list)
     ((get 'make 'sparse) var terms))
   (define (adjoin-term x term-list) (apply-generic 'adjoin-term x term-list))
+  (define (empty-termlist? term-list) (apply-generic 'empty-termlist term-list))
   (define (variable p)  (apply-generic 'variable p))
   (define (term-list p) (apply-generic 'term-list p))
   (define (variable? x) (symbol? x))
   (define (same-variable? v1 v2)
     (and (variable? v1) (variable? v2) (eq? v1 v2)))
   (define (make-term var terms) (apply-generic 'make var terms)) 
+  (define (negate term) (apply-generic 'negate term))
   (define (add-poly p1 p2)
     (if (same-variable? (variable p1) (variable p2))
         (make-poly (variable p1)
@@ -106,9 +114,47 @@
                      (add-terms (rest-terms L1)
                                 (rest-terms L2)))))))))
 
+  (define (mul-poly p1 p2)
+  (if (same-variable? (variable p1) (variable p2))
+      (make-poly (variable p1)
+                 (mul-terms (term-list p1)
+                            (term-list p2)))
+      (error "Polys not in same var -- MUL-POLY"
+             (list p1 p2))))
+
+  (define (mul-terms L1 L2)
+  (if (empty-termlist? L1)
+      (the-empty-termlist)
+      (add-terms (mul-term-by-all-terms (first-term L1) L2)
+                 (mul-terms (rest-terms L1) L2))))
+  (define (mul-term-by-all-terms t1 L)
+    (if (empty-termlist? L)
+        (the-empty-termlist)
+        (let ((t2 (first-term L)))
+          (adjoin-term
+           (make-term (+ (order t1) (order t2))
+                      (mul (coeff t1) (coeff t2)))
+           (mul-term-by-all-terms t1 (rest-terms L))))))
+
+  (define (sub-polynomials p1 p2)
+    (cond ((=zero? p1) (negate p2))
+          ((=zero? p2) p1)
+	  (else (add-poly p1 (negate p2)))))
+
+  (define (=zero? p)
+    (empty-termlist? p))
+
+  (define (negate-polynomial polynomial)
+    (make-polynomial (variable polynomial) (map negate (term-list polynomial))))
+
   (define (tag x) (cons 'polynomial x))
   (put 'make-dense-polynomial  'polynomial (lambda (var terms) (tag (make-dense-polynomial var terms))))
   (put 'make-sparse-polynomial 'polynomial (lambda (var terms) (tag (make-sparse-polynomial var terms))))
+  (put 'add '(polynomial polynomial) add-poly)
+  (put 'mul '(polynomial polynomial) mul-poly)
+  (put 'sub '(polynomial polynomial) sub-poly)
+  (put '=zero? 'polynomial =zero?)
+  (put 'negate 'polynomial negate-polynomial)
 'done)
 
 (define (apply-generic op . args)
@@ -116,19 +162,6 @@
     (let ((proc (get op type-tags)))
       (if proc
           (apply proc (map contents args))
-          (if (= (length args) 2)
-              (let ((type1 (car type-tags))
-                    (type2 (cadr type-tags))
-                    (a1 (car args))
-                    (a2 (cadr args)))
-                (let ((t1->t2 (get-coercion type1 type2))
-                      (t2->t1 (get-coercion type2 type1)))
-                  (cond (t1->t2
-                         (apply-generic op (t1->t2 a1) a2))
-                        (t2->t1
-                         (apply-generic op a1 (t2->t1 a2)))
-                        (else
-                         (error "No method for these types"
-                                (list op type-tags))))))
-              (error "No method for these types"
-                     (list op type-tags)))))))
+          (error
+            "No method for these types -- APPLY-GENERIC"
+            (list op type-tags))))))
