@@ -3,36 +3,44 @@
         ((polynomial? x) (empty-termlist? x))
 	(else (error "Invalid type -- =ZERO?" x))))
 
-(define (contract poly)
-  pass)
+;(define (contract poly)
+  ;pass)
+
+;(define (expand poly)
+  ;(define (ex term)
+    ;(if (polynomial? (coeff term))
+        ;(let ((sub-poly (coeff term)))
+	     ;(map (lambda (x) (make-term (order term) (make-poly (variable sub-poly) (list x)))) (flatmap ex (term-list sub-poly))))
+	;(list term)))
+  ;(make-poly (variable poly) (flatmap ex (term-list poly))))
 
 (define (expand poly)
+  (make-poly (variable poly) (expand-terms (term-list poly))))
+
+(define (expand-terms tlist)
   (define (ex term)
     (if (polynomial? (coeff term))
         (let ((sub-poly (coeff term)))
-	     (map (lambda (x) (make-term (order term) (make-poly (variable sub-poly) (list x)))) (flatmap ex (term-list sub-poly))))
+	     (map (lambda (x) (make-term (order term) (make-poly (variable sub-poly) (list x)))) (expand-terms (term-list sub-poly))))
 	(list term)))
-  (make-poly (variable poly) (flatmap ex (term-list poly))))
-
-(define (expand poly)
-  (define (ex term)
-    (if (polynomial? (coeff term))
-        (let ((sub-poly (coeff term)))
-	     (map (lambda (x) (make-term (order term) (make-poly (variable sub-poly) (list x)))) (flatmap ex (term-list sub-poly))))
-	(list term)))
-  (make-poly (variable poly) (flatmap ex (term-list poly))))
+  (flatmap ex tlist))
 
 (define (flatmap proc lst)
   (if (null? lst)
       '()
       (append (proc (car lst)) (flatmap proc (cdr lst)))))
 
-;(define (combine-like-terms tlist)
-  ;(
+;(define (combine-like-terms poly)
+  ;(define (combine-terms order)
+    ;(
+
+(define (filter pred lst)
+  (cond ((null? lst) '())
+        ((pred (car lst)) (cons (car lst) (filter pred (cdr lst))))
+	(else (filter pred (cdr lst)))))
 
 ;(define (group-similar-powers poly)
-  ;pass)
-
+  ;(define (f
 
 (define (adjoin-term term term-list)
   (if (=zero? (coeff term))
@@ -131,12 +139,8 @@
       (cdr x)))
 
 (define (test)
-  ;(define poly (make-poly 'y (list (make-term 3 3) (make-term 2 2) (make-term 1 1))))
-  ;(define poly2 (make-poly 'x (list (make-term 3 3) (make-term 2 2) (make-term 5 poly))))
-  (define poly3 (make-poly 'x (list (make-term 1 (make-poly 'y (list (make-term 1 (make-poly 'z (list (make-term 1 1) (make-term 0 1))))))))))
-  ;(mul-poly poly poly))
-  (expand poly3))
-
-(define (test2)
-  (define poly (make-poly 'y (list (make-term 3 3) (make-term 2 2) (make-term 1 1))))
-  (term-list poly))
+  (define polya (make-poly 'x (list (make-term 2 (make-poly 'y (list (make-term 1 1) (make-term 0 1))))
+				   (make-term 1 (make-poly 'y (list (make-term 2 1) (make-term 0 1))))
+				   (make-term 0 (make-poly 'y (list (make-term 1 1) (make-term 0 -1)))))))
+  (define poly (make-poly 'x (list (make-term 1 (make-poly 'y (list (make-term 1 1)))) (make-term 0 1))))
+  (expand poly))
