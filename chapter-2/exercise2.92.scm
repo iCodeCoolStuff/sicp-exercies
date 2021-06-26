@@ -3,17 +3,6 @@
         ((polynomial? x) (empty-termlist? x))
 	(else (error "Invalid type -- =ZERO?" x))))
 
-;(define (contract poly)
-  ;pass)
-
-;(define (expand poly)
-  ;(define (ex term)
-    ;(if (polynomial? (coeff term))
-        ;(let ((sub-poly (coeff term)))
-	     ;(map (lambda (x) (make-term (order term) (make-poly (variable sub-poly) (list x)))) (flatmap ex (term-list sub-poly))))
-	;(list term)))
-  ;(make-poly (variable poly) (flatmap ex (term-list poly))))
-
 (define (expand poly)
   (make-poly (variable poly) (expand-terms (term-list poly))))
 
@@ -30,17 +19,10 @@
       '()
       (append (proc (car lst)) (flatmap proc (cdr lst)))))
 
-;(define (combine-like-terms poly)
-  ;(define (combine-terms order)
-    ;(
-
 (define (filter pred lst)
   (cond ((null? lst) '())
         ((pred (car lst)) (cons (car lst) (filter pred (cdr lst))))
 	(else (filter pred (cdr lst)))))
-
-;(define (group-similar-powers poly)
-  ;(define (f
 
 (define (adjoin-term term term-list)
   (if (=zero? (coeff term))
@@ -115,14 +97,20 @@
                     (mul (coeff t1) (coeff t2)))
          (mul-term-by-all-terms t1 (rest-terms L))))))
 
+(define (coerce-to-polynomial var x)
+  (make-poly var (list (make-term 0 x))))
+
 (define (add a1 a2)
-  (cond ((not (eq? (type a1) (type a2))) (error "Tyoes of a1 and a2 are different -- ADD" a1 a2))
+  (cond ((and (eq? (type a1) 'number)     (eq? (type a2) 'polynomial)) (add (coerce-to-polynomial (variable a2) a1) a2))
+        ((and (eq? (type a1) 'polynomial) (eq? (type a2) 'number))     (add a1 (coerce-to-polynomial (variable a1) a2)))
         ((eq? (type a1) 'number) (+ a1 a2))
         ((and (polynomial? a1) (polynomial? a2)) (add-poly a1 a2))
 	(else (error "Invalid type -- ADD" a1 a2))))
 
 (define (mul m1 m2)
-  (cond ((not (eq? (type m1) (type m2))) (error "Tyoes of m1 and m2 are different -- MUL" m1 m2))
+  (cond ((and (eq? (type m1) 'number)     (eq? (type m2) 'polynomial)) (mul (coerce-to-polynomial (variable m2) m1) m2))
+        ((and (eq? (type m1) 'polynomial) (eq? (type m2) 'number))     (mul m1 (coerce-to-polynomial (variable m1) m2)))
+       ; ((not (eq? (type m1) (type m2))) (error "Types of m1 and m2 are different -- MUL" m1 m2))
         ((eq? (type m1) 'number) (* m1 m2))
         ((and (polynomial? m1) (polynomial? m2)) (mul-poly m1 m2))
 	(else (error "Invalid type -- MUL" m1 m2))))
@@ -142,5 +130,14 @@
   (define polya (make-poly 'x (list (make-term 2 (make-poly 'y (list (make-term 1 1) (make-term 0 1))))
 				   (make-term 1 (make-poly 'y (list (make-term 2 1) (make-term 0 1))))
 				   (make-term 0 (make-poly 'y (list (make-term 1 1) (make-term 0 -1)))))))
-  (define poly (make-poly 'x (list (make-term 1 (make-poly 'y (list (make-term 1 1)))) (make-term 0 1))))
+  (define poly (make-poly 'x (list (make-term 1 (make-poly 'y (list (make-term 2 1) (make-term 1 1) (make-term 0 1)))))))
   (expand poly))
+
+(define (test2)
+  (make-poly 'x (list (make-term 2 1) (make-term 1 2) (make-term 0 1))))
+
+(define (test3)
+  (make-poly 'x (list (make-term 0 (make-poly 'y (list (make-term 0 1)))))))
+
+(define (test4)
+  (make-poly 'x (list (make-term 2 1) (make-term 1 (make-poly 'y (list (make-term 1 5) (make-term 0 1)))) (make-term 0 1))))
