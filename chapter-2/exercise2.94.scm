@@ -173,14 +173,15 @@
 	      (let ((rest-of-result 
 		      (div-terms (sub-terms L1 (mul-term-by-all-terms (make-term new-o new-c)  L2)) L2)))
 		(let ((terms     (car rest-of-result))
-		      (rem       (cdr rest-of-result)))
+		      (rem       (cadr rest-of-result)))
 		  (list (adjoin-term (make-term new-o new-c) terms) rem))))))))
 
 (define (sub-terms L1 L2)
   (add-terms L1 (map negate L2)))
 
 (define (remainder-terms L1 L2)
-  (cdr (div-terms L1 L2)))
+  (display L1) (display " ") (display L2) (newline)
+  (cadr (div-terms L1 L2)))
 
 (define (gcd-terms a b)
 	(if (empty-termlist? b)
@@ -189,7 +190,7 @@
 
 (define (gcd-poly p1 p2)
   (if (same-variable? (variable p1) (variable p2))
-      (make-polynomial (variable p1) (gcd-terms (term-list p1) (term-list p2)))
+      (make-poly (variable p1) (gcd-terms (term-list p1) (term-list p2)))
       (error "Polys do not have the same variable --GCD-POLY" p1 p2)))
 
 (define (div-poly p1 p2)
@@ -240,4 +241,4 @@
   (define p1 (make-poly 'x '((4 1) (3 -1) (2 -2) (1 2))))
   (define p2 (make-poly 'x '((3 1) (1 -1))))
 
-  (div-terms (term-list p1) (term-list p2)))
+  (greatest-common-divisor p1 p2))
