@@ -182,9 +182,13 @@
 (define (remainder-terms L1 L2)
   (cadr (div-terms L1 L2)))
 
+(define (quotient-terms L1 L2)
+  (car (div-terms L1 L2)))
+
 (define (gcd-terms a b)
 	(if (empty-termlist? b)
-	    a
+	    (let ((g (apply gcd (map (lambda (t) (coeff t)) a))))
+	      (quotient-terms a (list (make-term 0 g))))
 	    (gcd-terms b (pseudoremainder-terms a b))))
 
 (define (gcd-poly p1 p2)
@@ -234,7 +238,7 @@
         ((and (eq? (type d1) 'polynomial) (eq? (type d2) 'polynomial)) (div-poly d1 d2))
         ((and (eq? (type d1) 'number) (eq? (type d2) 'number)) (/ d1 d2))
 	((eq? (type d1) (type d2)) (error "Operation not defined for types -- DIV" (list d1 d2)))
-        (else (error "Types of s1 and s2 are different -- DIV" (list d1 d2)))))
+        (else (error "Types of d1 and d2 are different -- DIV" (list d1 d2)))))
 
 (define (test)
   (define p1 (make-poly 'x (list (make-term 2 1) (make-term 1 -2) (make-term 0 1))))
