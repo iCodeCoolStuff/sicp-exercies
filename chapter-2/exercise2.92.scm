@@ -48,6 +48,11 @@
 (define (term-list poly)
   (cdr (contents poly)))
 
+(define (sub-poly p1 p2)
+  (cond ((=zero? p1) (negate p2))
+        ((=zero? p2) p1)
+	(else (add-poly p1 (negate p2)))))
+
 (define (add-poly p1 p2)
   (if (same-variable? (variable p1) (variable p2))
         (make-poly (variable p1)
@@ -96,6 +101,16 @@
          (make-term (+ (order t1) (order t2))
                     (mul (coeff t1) (coeff t2)))
          (mul-term-by-all-terms t1 (rest-terms L))))))
+
+(define (negate-polynomial polynomial)
+  (make-polynomial (variable polynomial) (map negate (term-list polynomial))))
+
+(define (negate-term term)
+  (make-term (order term) (mul (coeff term) -1)))
+
+(define (negate x)
+  (cond ((eq? (type x) 'polynomial) (negate-polynomial x))
+        ((eq? 
 
 (define (coerce-to-polynomial var x)
   (make-poly var (list (make-term 0 x))))
