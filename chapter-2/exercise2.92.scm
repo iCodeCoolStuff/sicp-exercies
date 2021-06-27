@@ -109,8 +109,9 @@
   (make-term (order term) (mul (coeff term) -1)))
 
 (define (negate x)
-  (cond ((eq? (type x) 'polynomial) (negate-polynomial x))
-        ((eq? 
+  (if (and (pair? x) (eq? (type x) 'polynomial)) 
+      (negate-polynomial x)
+      (negate-term x)))
 
 (define (coerce-to-polynomial var x)
   (make-poly var (list (make-term 0 x))))
