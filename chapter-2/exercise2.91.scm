@@ -10,7 +10,7 @@
 	      (let ((rest-of-result 
 		      (div-terms (sub-terms L1 (mul-term-by-all-terms (make-term new-o new-c)  L2)) L2)))
 		(let ((terms     (car rest-of-result))
-		      (rem       (cdr rest-of-result)))
+		      (rem       (cadr rest-of-result)))
 		  (list (adjoin-term (make-term new-o new-c) terms) rem))))))))
 
 (define (div-poly p1 p2)
