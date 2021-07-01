@@ -3,7 +3,4 @@
     (begin (set! sum (+ sum amount))
 	     sum)))
 
-(define (test)
-  (define a (make-accumulator 0))
-  (a 10)
-  (display a))
+(define A1 (make-accumulator 100))
