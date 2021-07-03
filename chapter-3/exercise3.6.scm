@@ -1,0 +1,11 @@
+(define (rand symbol)
+  (let ((x rand-init))
+    (cond ((eq? symbol 'generate)
+            (begin (set! x (rand-update x))
+	      x))
+	  ((eq? symbol 'reset)
+	     (lambda (val)
+	       (begin (set! x val)
+	         x)))
+	   (else
+	     (error "Unknown symbol -- RAND" symbol)))))
