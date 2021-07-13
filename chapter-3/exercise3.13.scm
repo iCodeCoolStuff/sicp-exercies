@@ -4,4 +4,4 @@
 ; |    V        V        V        |
 ; |    a        b        c        |
 ; +-------------------------------+
-; the last pair will return (c (a b c))
+; The computer will not find the last pair of z because there is none.
