@@ -1,0 +1,41 @@
+(define (make-table)
+  (let ((local-table (list '*table*)))
+    (define (make-record key value)
+      (cons key value))
+    (define (assoc key records)
+      (cond ((null? records) false)
+	    ((equal? key (caar records)) (car records))
+	    (else (assoc key (cdr records)))))
+    (define (insert! key value)
+      (let ((records (cdr local-table)))
+	(set-cdr! local-table (cons (cons key value) records))
+	'ok))
+    (define (lookup key)
+      (let ((record (assoc key (cdr local-table))))
+	(if record
+	    (cdr record)
+	    false)))
+  (define (dispatch m)
+    (cond ((eq? 'lookup-proc m) lookup)
+          ((eq? 'insert-proc! m) insert!)
+	  (else (error "Unknown operation: TABLE" m))))
+  dispatch))
+
+(define (memoize f)
+  (let ((table (make-table)))
+    (define get (table 'lookup-proc))
+    (define put (table 'insert-proc!))
+    (lambda (x)
+      (let ((previously-computed-result
+	      (get x)))
+	(or previously-computed-result
+	    (let ((result (f x)))
+	      (put x result)
+	      result))))))
+
+(define memo-fib
+  (memoize
+    (lambda (n)
+      (cond ((= n 0) 0)
+            ((= n 1) 1)
+	    (else (+ (memo-fib (- n 1)) (memo-fib (- n 2))))))))
