@@ -132,3 +132,5 @@
   (full-adder a b c d e)
   (set-signal! a 1)
   (get-signal d))
+
+; The delay needed to obtain the complete output will be n * ((2 * and-gate-delay) + inverter-delay)
