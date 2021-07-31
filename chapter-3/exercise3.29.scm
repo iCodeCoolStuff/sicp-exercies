@@ -78,3 +78,5 @@
     (inverter a2-out n2-in)
     (and-gate a1-out a2-out n3-out)
     (inverter n3-out output)))
+
+; The delay time of the or-gate will be equal to 3x the delay time of an and-gate plus 3x the delay time of an inverter.
