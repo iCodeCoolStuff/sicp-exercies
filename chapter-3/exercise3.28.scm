@@ -60,6 +60,11 @@
   (add-action! o1 or-action-procedure)
   (add-action! o2 or-action-procedure)
   'ok)
+(define (logical-or s1 s2)
+  (cond ((not (and (or (= s1 1) (= s1 0)) (or (= s2 1) (= s2 0)))) ; Either s1 or s2 is neither 1 nor 0
+	 (error "Invalid signal" (list s1 s2)))
+        ((or (= s1 1) (= s2 1)) 1)
+	(else 0)))
 (define (after-delay delay-time proc)
   (proc))
 (define inverter-delay 0)
