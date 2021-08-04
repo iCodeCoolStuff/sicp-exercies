@@ -59,13 +59,18 @@
   (define (process-new-value)
     (cond ((or (and (has-value? m1) (= (get-value m1) 0))
 	       (and (has-value? m2) (= (get-value m2) 0)))
-	   (set0value! product 0))
+	   (set-value! product 0))
           ((and (has-value? m1) (has-value? m2))
 	   (set-value! product
 		       (* (get-value m1) (get-value m2))
-		       m2))
+		       me))
 	  ((and (has-value? product) (has-value? m1))
 	   (set-value! m2
+		       (/ (get-value product)
+			  (get-value m1))
+		       me))
+	  ((and (has-value? product) (has-value? m2))
+	   (set-value! m1
 		       (/ (get-value product)
 			  (get-value m2))
 		       me))))
