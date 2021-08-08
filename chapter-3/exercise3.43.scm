@@ -35,27 +35,24 @@
 ;  |                                                                                    
 ;  |    Paul          Peter                                                             
 ;  |                                                                                    
+;  |    a3 bal                                                                          
 ;  |    a1 bal                                                                          
-;  |    a2 bal                                                                          
 ;  |    calc diff                                                                  
-;  |    w1 diff                                                                         
 ;  |                  a1 bal                                                            
 ;  |                  a3 bal                                                            
 ;  |                  calc diff                                                    
-;  |    d2 diff                                                                         
 ;  |                  w1 diff                                                           
 ;  |                  d3 diff                                                           
+;  |    w3 diff                                                                         
+;  |    d1 diff                                                                         
 ;  |                                                                                    
 ;  |    a1            a2            a3                                                  
 ;  |                                                                                    
-;  |    $50           $20           $-10                                                
+;  |    $50           $20           $10                                                 
 ;  |                                                                               
 ;  V                                                                               
 ;                                                                                  
 ;  time                                                                            
 ;                                                                                  
-;  Presumably, the system would raise an error and respond with "Insufficient funds" if another swap was made between a3
-;  and any other account. Essentially this creates 10 dollars.
-
-; However, if negative dollars are counted, then this system will always preserve the sum of the dollars of the account, provided
-; no one ever tries to exchange dollars between accounts with negative values.
+;  In this system, the first process is delayed while the second process completes. The first process can't withdraw
+;  from a3 due to insufficient funds and $20 are created from the first process completing.
