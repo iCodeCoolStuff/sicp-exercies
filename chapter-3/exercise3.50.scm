@@ -32,7 +32,6 @@
 		        pred
 		        (stream-cdr stream))))
         (else (stream-filter pred (stream-cdr stream)))))
-(define (force delayed-object) (delayed-object))
 (define (memo-proc proc)
   (let ((already-run? false) (result false))
     (lambda ()
@@ -46,11 +45,10 @@
 (define (cons-stream a b)
   (cons a (delay b)))
 
-
 (define (stream-map proc . argstreams)
   (if (null? (car argstreams))
       the-empty-stream
       (cons-stream
 	(apply proc (map stream-car argstreams))
 	(apply stream-map
-	       (cons proc (map cdr argstreams))))))
+	       (cons proc (map stream-cdr argstreams))))))
