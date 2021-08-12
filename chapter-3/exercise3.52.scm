@@ -1,3 +1,4 @@
+; Commented out lines because Scheme implementation delays computation.
 (define (memo-proc proc)
   (let ((already-run? false) (result false))
     (lambda ()
@@ -6,14 +7,14 @@
 	    (set! already-run? true)
 	    result)
 	  result))))
-(define (delay exp)
+;(define (delay exp)
   ;(lambda () exp))
-  (memo-proc (lambda () exp)))
-(define (force promise) (promise))
+  ;(memo-proc (lambda () exp)))
+;(define (force promise) (promise))
 (define (stream-car stream) (car stream))
 (define (stream-cdr stream) (force (cdr stream)))
-(define (cons-stream a b)
-  (cons a (delay b)))
+;(define (cons-stream a b)
+  ;(cons a (delay b)))
 (define the-empty-stream '())
 (define (stream-ref s n)
   (if (= n 0)
@@ -54,21 +55,23 @@
 (define (accum x) (set! sum (+ x sum)) sum)
 (define seq
   (stream-map accum
-	      (stream-enumerate-interval 1 10)))
-;(define y (stream-filter even? seq))
-;(define z
-  ;(stream-filter (lambda (x) (= (remainder x 5) 0))
-		 ;seq))
-;(stream-ref y 7)
-; 90
-;(display-stream z)
-; 210
-; 200
-; 195
-; 165
-; 155
-; 105
-; 90
-; 20
+	      (stream-enumerate-interval 1 20)))
+(define y (stream-filter even? seq))
+(define z
+  (stream-filter (lambda (x) (= (remainder x 5) 0))
+		 seq))
 
-; The responses would not differ because z does not have to recompute seq.
+(stream-ref y 7)
+; 136
+(display-stream z)
+;10
+;15
+;45
+;55
+;105
+;120
+;190
+;210
+
+; The responses would differ because the values in seq would have to be evaluated again which would modify sum so that the incorrect
+; values are outputted.

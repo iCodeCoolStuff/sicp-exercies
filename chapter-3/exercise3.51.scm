@@ -1,19 +1,20 @@
-(define (memo-proc proc)
-  (let ((already-run? false) (result false))
-    (lambda ()
-      (if (not already-run?)
-	  (begin (set! result (proc))
-	    (set! already-run? true)
-	    result)
-	  result))))
-(define (delay exp)
-  (memo-proc (lambda () exp)))
-(define (force promise) (promise))
+; Commented out lines because Scheme implementation delays computation.
+;(define (memo-proc proc)
+  ;(let ((already-run? false) (result false))
+    ;(lambda ()
+      ;(if (not already-run?)
+	  ;(begin (set! result (proc))
+	    ;(set! already-run? true)
+	    ;result)
+	  ;result))))
+;(define (delay exp)
+  ;(memo-proc (lambda () exp)))
+;(define (force promise) (promise))
 (define (stream-car stream) (car stream))
 (define (stream-cdr stream) (force (cdr stream)))
 (define the-empty-stream '())
-(define (cons-stream a b)
-  (cons a (delay b)))
+;(define (cons-stream a b)
+  ;(cons a (delay b)))
 (define (stream-ref s n)
   (if (= n 0)
       (stream-car s)
@@ -56,17 +57,11 @@
 (stream-ref x 7)
 
 ; The interpreter prints:
-;10
-;9
-;8
-;7
-;6
-;5
-;4
-;3
-;2
-;1
 ;0
-
+;1
+;2
+;3
+;4
 ;5
+;6
 ;7
