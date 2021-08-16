@@ -40,5 +40,5 @@
   (define X
     (cons-stream
       1
-      (mul-series (mul-series negative-ones (s-sub-r S)) X)))
+      (mul-series (mul-streams negative-ones (s-sub-r S)) X)))
   X)
