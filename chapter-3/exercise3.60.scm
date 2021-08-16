@@ -32,12 +32,15 @@
       (mul-streams (make-const-stream (stream-car s1)) (stream-cdr s2))
       (mul-series (stream-cdr s1) s2))))
 
-(define (test)
-  (define s (add-streams (mul-streams sine-series sine-series) (mul-streams cosine-series cosine-series)))
-  s)
+(define sine-series-squared
+  (mul-series sine-series sine-series))
 
-(define twos
-  (cons-stream 2 twos))
+(define cosine-series-squared
+  (mul-series cosine-series cosine-series))
+
+(define (test)
+  (define s (add-streams sine-series-squared cosine-series-squared))
+  s)
 
 (define (test2)
   (define s (mul-series integers integers))
