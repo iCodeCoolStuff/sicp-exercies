@@ -7,4 +7,4 @@
   (list (make-lambda (let-variables exp) (let-body exp)) (let-exps exp))) 
 
 (define (eval-let exp env)
-  (eval (let-combination exp) env))
+  (eval (let->combination exp) env))
