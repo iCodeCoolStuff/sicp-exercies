@@ -1,0 +1,20 @@
+(define (let*-clauses exp) (cadr exp))
+(define (let*-body exp) (caddr exp))
+(define (let*->nested-lets exp)
+  (expand-lets (let*-clauses exp) (let*-body exp)))
+(define (variable clause)
+  (car clause))
+(define (expression clause)
+  (cadr clause))
+
+(define (expand-lets clauses body)
+  (let ((first (car clauses))
+	(rest  (cdr clauses)))
+    (if (null? rest)
+	body
+	(make-lambda (list (variable first))
+		     (expression first)
+		     (expand-lets rest body)))))
+
+(define (eval-let* exp env)
+  (eval (let*->nested-lets exp) env))
