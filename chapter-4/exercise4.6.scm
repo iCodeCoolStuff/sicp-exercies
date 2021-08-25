@@ -8,3 +8,5 @@
 
 (define (eval-let exp env)
   (eval (let->combination exp) env))
+
+(put 'let eval-let)
