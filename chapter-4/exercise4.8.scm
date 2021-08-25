@@ -1,0 +1,21 @@
+(define (let? exp) (tagged-list? exp 'let))
+(define (named-let? exp)
+  (if (self-evaluating? (car exp))
+      true
+      false))
+(define (let-exps exp)
+  (if (named-let? exp)
+      (caddr exp)
+      (cadr exp)))
+(define (let-variables exp) (map car (let-exps exp)))
+(define (let-body exp)
+  (if (named-let? exp)
+      (cadddr exp)
+      (caddr exp)))
+(define (let->combination exp)
+  (list (make-lambda (let-variables exp) (let-body exp)) (let-exps exp)))
+
+(define (eval-let exp env)
+  (eval (let->combination exp) env))
+
+(put 'let eval-let)
