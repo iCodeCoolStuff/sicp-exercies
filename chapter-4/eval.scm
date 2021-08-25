@@ -135,7 +135,7 @@
 (define (expand-clauses clauses)
   (if (null? clauses)
       'false
-      (let ((first (car-clauses))
+      (let ((first (car clauses))
 	    (rest (cdr clauses)))
 	(if (cond-else-clause? first)
 	    (if (null? rest)
