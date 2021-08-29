@@ -8,11 +8,25 @@
 (define (make-definition var value)
   (list var value))
 
+(define (make-definition def-variable def-parameters def-body)
+  (list 'define def-variable (make-lambda def-parameters def-body)))
+
+(define (loop->application exp)
+  (make-begin
+    (list (make-definiton 'loop '() 
+			  (make-begin (list (make-if (loop-condition exp)
+			      	                     (loop-body exp)
+				                     (loop-return exp)))))
+	  '(loop))))
+
 (define (eval-loop exp env)
-  (if (eval (loop-condition exp) env)
-      (begin (eval (loop-body exp) env)
-	     (eval-loop exp))
-      (loop-return exp)))
+  (eval (loop->application exp) env))
+
+;(define (eval-loop exp env)
+  ;(if (eval (loop-condition exp) env)
+      ;(begin (eval (loop-body exp) env)
+	     ;(eval-loop exp))
+      ;(loop-return exp)))
 
 (define (while? exp) (tagged-list? exp 'while))
 (define (while-condition exp) (cadr exp))
@@ -63,29 +77,29 @@
 		(make-begin 
 		  (list body (expand-for var (cdr lst) body))))))
 
-;(define (do? exp) (tagged-list? exp 'do))
-;(define (do-bindings exp) (cadr exp))
-;(define (variable-bindings exp) (map (lambda (b) (list (car b) (cadr b))) (do-bindings exp)))
-;(define (do-steps exp) (map cddr (do-bindings exp)))
-;(define (do-test exp) (caddr exp))
-;(define (do-return exp) (cdaddr exp))
-;(define (do-body exp) (cadddr exp))
+(define (do? exp) (tagged-list? exp 'do))
+(define (do-bindings exp) (cadr exp))
+(define (variable-bindings exp) (map (lambda (b) (list (car b) (cadr b))) (do-bindings exp)))
+(define (do-variables exp) (map car (do-bindings exp)))
+(define (do-inits exp) (map cadr (do-bindings exp)))
+(define (do-steps exp) (map cddr (do-bindings exp)))
+(define (do-test exp) (caddr exp))
+(define (do-return exp) (cdaddr exp))
+(define (do-body exp) (cadddr exp))
 
-;(define (do->let->loop exp)
-  ;(make-let (variable-bindings exp)
-	    ;(make-loop (do-test exp)
-		       ;(make-begin (list (do-body exp)
-			                 ;(do-steps exp))) ; can't implement without set!
-		       ;(do-return exp))))
+(define (do->let->application exp)
+  (make-begin
+    (list (make-definition 'do
+          (do-variables exp) (make-if (do-test exp)
+				      (do-return exp)
+				      (make-begin
+				        (list (do-body exp)
+					      (cons 'do (do-steps exp))))))
+	  (cons 'do (do-inits exp)))))
 
-
-; Iteration constructs: loop, while, until, for, do (omitted for reasons explained later).
+; Iteration constructs: loop, while, until, for, do.
 ;
-; Loop is the base iteration construct used to make all other iteration constructs (except for). 
-; Technically, loop can be represented by a procedure or named let, but that would require 
-; the use of make-procedure which would couple loops with how procedures are created (i.e. requires
-; loop to take env as a parameter).That is a bad design choice, so I decided to make loop a 
-; special form that has its own evaluation rules.
+; Loop is a base iteration construct used to make other iteration constructs like while and until.
 ;
 ; Loop has 3 arguments: a condition that will break the loop if met, the body of the loop statement,
 ; and a return value. It isn't meant to be used on its own, but it definitely can be.
@@ -125,7 +139,7 @@
 ;   (display (fib x))
 ;   (set! x (+ x 1)))
 ;
-; For is your typical for loop.
+; For is your typical for loop. It requires a symbol and a list of items to iterate over.
 ;
 ; Usage:
 ;
@@ -134,9 +148,7 @@
 ;  (display (square i)))
 ;
 ; Do is useful for functional programming (https://groups.csail.mit.edu/mac/ftpdir/scheme-mail/HTML/rrrs-1986/msg00300.html).
-; However, I couldn't implement it here because it requires the use of set! which is beyond the scope of this exercise.
-
-; Do is the form (do ((variable init step) ...) (test expression ...) command ...)
+; You might be unfamiliar with do, so here is a quick guide. Do is the form (do ((variable init step) ...) (test expression ...) command ...)
 ;
 ; Usage:
 ;
