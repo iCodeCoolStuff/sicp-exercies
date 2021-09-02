@@ -22,20 +22,20 @@
 
 (define (expand-and clauses)
   (if (null? clauses)
-      true
+      'true
       (let ((first (car clauses))
 	    (rest (cdr clauses)))
 	(make-if first
 		 (expand-and rest)
-		 false))))
+		 'false))))
 
 (define (expand-or clauses)
   (if (null? clauses)
-      false
+      'false
       (let ((first (car clauses))
 	    (rest (cdr clausees)))
 	(make-if first
-		 true
+		 'true
 		 (expand-or rest)))))
 
 (define (eval-and exp) (expand-and (and-exps exp)))
