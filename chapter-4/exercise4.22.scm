@@ -1,0 +1,5 @@
+(define (analyze-let exp)
+  (let ((vars (let-variables exp))
+	(exps (let-exps      exp))
+	(body (let-body      exp)))
+    (analyze-application (cons (make-lambda vars body) exps))))
