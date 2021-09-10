@@ -160,7 +160,7 @@
 (define (let-exps      exp) (map cadr (let-bindings exp)))
 (define (let-body exp) (cddr exp))
 (define (let->combination exp)
-  (cons (make-lambda (let-variables exp) 
+  (cons (make-lambda (let-variables exp)
 		     (let-body exp)) (let-exps exp)))
 (define (make-procedure parameters body env)
   (list 'procedure parameters body env))
@@ -232,7 +232,7 @@
 	(else (filter pred (cdr lst)))))
 
 (define (make-let bindings body)
-  (cons 'let (cons bindings body)))
+  (list 'let bindings body))
 (define (make-let-binding var exp)
   (list var exp))
 
