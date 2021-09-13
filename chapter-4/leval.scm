@@ -21,7 +21,6 @@
 
 (define apply-in-underlying-scheme apply)
 (define (apply procedure arguments env)
-  (display procedure)
   (cond ((primitive-procedure? procedure)
 	 (apply-primitive-procedure
 	  procedure
