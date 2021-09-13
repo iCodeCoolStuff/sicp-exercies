@@ -13,7 +13,7 @@
 	 (eval-sequence (begin-actions exp) env))
 	((cond? exp) (eval (cond->if exp) env))
 	((application? exp)
-	 (apply (operator exp)
+	 (apply (actual-value (operator exp) env)
 		(operands exp)
 		env))
 	(else
