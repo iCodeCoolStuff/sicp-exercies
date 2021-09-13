@@ -264,6 +264,7 @@
 	(list '/ /)
 	(list '= =)
 	(list 'exit exit)
+	(list 'display display)
 	; more primitives...
 	))
 (define (primitive-procedure-names)
