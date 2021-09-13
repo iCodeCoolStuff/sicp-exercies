@@ -120,6 +120,11 @@
 	    (thunk-value obj))
 	   (else obj)))
 
+;(define (force-it obj)
+  ;(if (thunk? obj)
+      ;(actual-value (thunk-exp obj) (thunk-env obj))
+      ;obj))
+
 (define (list-of-arg-values exps env)
   (if (no-operands? exps)
       '()
