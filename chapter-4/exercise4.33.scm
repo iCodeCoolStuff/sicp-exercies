@@ -1,5 +1,3 @@
-; I seem to be getting a bug where the console logs "ok" after evaluating a lazy quote. I don't know why this happens but the code seems to work.
-
 (define (eval exp env)
   (cond ((self-evaluating? exp) exp)
         ((variable? exp) (lookup-variable-value exp env))
