@@ -50,9 +50,9 @@
 (define (apply procedure arguments env)
   (cond ((primitive-procedure? procedure)
 	 (if (strict? procedure)
-	     (eval (apply-primitive-procedure
+	     (apply-primitive-procedure
 	       procedure
-	       (list-of-arg-values arguments env)) env)
+	       (list-of-arg-values arguments env))
 	     (apply-primitive-procedure
 	       procedure
 	       arguments)))
@@ -358,9 +358,8 @@
 (define (false? x)
   (eq? x false))
 
-(define lazy-car-primitive (list 'car (lambda (z) ((cadr z) (lambda (p q) p))) 'strict))
-(define lazy-cdr-primitive (list 'cdr (lambda (z) ((cadr z) (lambda (p q) q))) 'strict))
-
+(define lazy-car-primitive (list 'car (lambda (z) ((cadr z) (lambda (p q) (eval p the-global-environment)))) 'strict))
+(define lazy-cdr-primitive (list 'cdr (lambda (z) ((cadr z) (lambda (p q) (eval q the-global-environment)))) 'strict))
 (define primitive-procedures
   (list lazy-car-primitive
 	lazy-cdr-primitive
@@ -409,7 +408,7 @@
   (let ((input (read)))
     (let ((output (actual-value input the-global-environment)))
       (announce-output output-prompt)
-      (user-print output the-global-environment)))
+      (user-print output)))
   (driver-loop))
 (define (prompt-for-input string)
   (newline) (newline) (display string) (newline))
@@ -418,29 +417,31 @@
 
 (define (cons? object)
   (tagged-list? object 'pair))
-(define (consed? object)
-  (tagged-list? object 'cons))
 (define (lazy-list? object)
-  (and (cons? object) (consed? (lazy-cdr object))))
+  (or (and (cons? object) (cons? (lazy-cdr object)))
+      (and (cons? object) (null? (lazy-cdr object)))))
 (define (lazy-car z)
   (apply-primitive-procedure lazy-car-primitive (list z)))
 (define (lazy-cdr z)
   (apply-primitive-procedure lazy-cdr-primitive (list z)))
-(define (print-lazy-list lst env)
+
+(define (print-lazy-list lst)
   (display "(")
   (display (lazy-car lst))
-  (define (lazy-iter l)
-    (cond ((null? l)
+  (define (lazy-iter l sum)
+    (cond ((= sum 10)
+	   (display " ...)"))
+	   ((null? l)
            (display ")"))
 	  (else
 	    (display " ")
 	    (display (lazy-car l))
-	    (lazy-iter (actual-value (lazy-cdr l) env)))))
-  (lazy-iter (actual-value (lazy-cdr lst) env)))
+	    (lazy-iter (lazy-cdr l) (+ sum 1)))))
+  (lazy-iter (lazy-cdr lst) 0))
 
-(define (user-print object env)
+(define (user-print object)
   (cond ((lazy-list? object)
-	 (print-lazy-list object env))
+	 (print-lazy-list object))
         ((cons? object)
 	 (display "(")(display (lazy-car object))(display " . ")(display (lazy-cdr object))(display ")"))
 	((compound-procedure? object)
