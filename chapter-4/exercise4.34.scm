@@ -55,18 +55,14 @@
 	       (list-of-arg-values arguments env))
 	     (apply-primitive-procedure
 	       procedure
-	       arguments)))
+	       (list-of-delayed-args arguments env))))
         ((compound-procedure? procedure)
-	 (let* ((params (procedure-parameters procedure))
-	        (actual-params (actual-parameters params))
-	        (modifiers (modifiers params))
-	        (proc-env (procedure-environment procedure)))
 	 (eval-sequence
 	   (procedure-body procedure)
 	   (extend-environment
-	     actual-params
-	     (map-modifiers modifiers arguments env)
-	     proc-env))))
+	     (procedure-parameters procedure)
+	     (list-of-delayed-args arguments env)
+	     (procedure-environment procedure))))
 	(else
 	  (error
 	    "Unknown procedure type: APPLY" procedure))))
@@ -77,6 +73,13 @@
       (cons (actual-value (first-operand exps) env)
 	    (list-of-arg-values (rest-operands exps)
 				env))))
+
+(define (list-of-delayed-args exps env)
+  (if (no-operands? exps)
+      '()
+      (cons (make-memoized-thunk (first-operand exps) env)
+	    (list-of-delayed-args (rest-operands exps)
+				  env))))
 
 (define (actual-value exp env)
   (force-it (eval exp env)))
@@ -141,6 +144,7 @@
 (define (self-evaluating? exp)
   (cond ((number? exp) true)
 	((string? exp) true)
+	((cons? exp) true)
 	(else false)))
 
 (define (variable? exp) (symbol? exp))
@@ -358,8 +362,8 @@
 (define (false? x)
   (eq? x false))
 
-(define lazy-car-primitive (list 'car (lambda (z) ((cadr z) (lambda (p q) (eval p the-global-environment)))) 'strict))
-(define lazy-cdr-primitive (list 'cdr (lambda (z) ((cadr z) (lambda (p q) (eval q the-global-environment)))) 'strict))
+(define lazy-car-primitive (list 'car (lambda (z) ((cadr z) (lambda (p q) p ))) 'strict))
+(define lazy-cdr-primitive (list 'cdr (lambda (z) ((cadr z) (lambda (p q) q ))) 'strict))
 (define primitive-procedures
   (list lazy-car-primitive
 	lazy-cdr-primitive
@@ -421,9 +425,9 @@
   (or (and (cons? object) (cons? (lazy-cdr object)))
       (and (cons? object) (null? (lazy-cdr object)))))
 (define (lazy-car z)
-  (apply-primitive-procedure lazy-car-primitive (list z)))
+  (actual-value (list 'car z) the-global-environment))
 (define (lazy-cdr z)
-  (apply-primitive-procedure lazy-cdr-primitive (list z)))
+  (actual-value (list 'cdr z) the-global-environment))
 
 (define (print-lazy-list lst)
   (display "(")
