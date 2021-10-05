@@ -24,6 +24,8 @@
 	((definition? exp) (analyze-definition exp))
 	((if? exp) (analyze-if exp))
 	((not? exp) (analyze-not exp))
+	((and? exp) (analyze-and exp))
+	((or? exp) (analyze-or exp))
 	((let? exp) (analyze-let exp))
 	((lambda? exp) (analyze-lambda exp))
 	((begin? exp) (analyze-sequence (begin-actions exp)))
@@ -95,6 +97,35 @@
 		   (succeed false fail2)
 		   (succeed true  fail2)))
         fail))))
+
+(define (and? exp) (tagged-list? exp 'and))
+(define (make-and clauses) (cons 'and clauses))
+(define (and-clauses exp) (cdr exp))
+
+(define (expand-and clauses)
+  (if (null? clauses)
+      'true
+      (make-if (car clauses)
+	       (expand-and (cdr clauses))
+	       'false)))
+
+(define (or? exp) (tagged-list? exp 'or))
+(define (make-or clauses) (cons 'or clauses))
+(define (or-clauses exp) (cdr exp))
+
+(define (expand-or clauses)
+  (if (null? clauses)
+      'false
+      (make-if (car clauses)
+	       'true
+	       (expand-or (cdr clauses)))))
+
+(define (analyze-and exp)
+  (analyze (expand-and (and-clauses exp))))
+
+(define (analyze-or exp)
+  (analyze (expand-or (or-clauses exp))))
+
 
 (define (analyze-lambda exp)
   (let ((vars (lambda-parameters exp))
@@ -461,9 +492,11 @@
 	(list '= =)
 	(list '< <)
 	(list '> >)
+	(list '<= <=)
 	(list 'exit exit)
 	(list 'display display)
 	(list 'prime? prime?)
+	(list 'newline newline)
 	))
 (define (primitive-procedure-names)
   (map car primitive-procedures))
@@ -529,5 +562,6 @@
       (driver-loop))))
 
   (driver-loop))
+
 (define the-global-environment (setup-environment))
 (driver-loop)
