@@ -502,6 +502,7 @@
 	(list 'integer? integer?)
 	(list 'memq memq)
 	(list 'abs abs)
+    (list 'member member)
 	))
 (define (primitive-procedure-names)
   (map car primitive-procedures))
@@ -566,7 +567,8 @@
       (display ";;; There is no current problem")
       (driver-loop))))
 
-  (driver-loop))
-
-(define the-global-environment (setup-environment))
+(ambeval (list 'define (list 'require 'p) (list 'if (list 'not 'p) (list 'amb)))
+         the-global-environment
+         (lambda (val next-alternative) val)
+         (lambda () 'fail))
 (driver-loop)
