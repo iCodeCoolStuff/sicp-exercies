@@ -481,6 +481,7 @@
 
 (define primitive-procedures
   (list (list 'car car)
+    (list 'cadr cadr)
 	(list 'cdr cdr)
 	(list 'cons cons)
 	(list 'list list)
@@ -508,6 +509,8 @@
     (list 'true? true?)
     (list 'false? false?)
     (list 'eq? eq?)
+    (list 'length length)
+    (list 'append append)
 	))
 (define (primitive-procedure-names)
   (map car primitive-procedures))
