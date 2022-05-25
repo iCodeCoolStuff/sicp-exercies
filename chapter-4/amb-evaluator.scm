@@ -511,6 +511,8 @@
     (list 'eq? eq?)
     (list 'length length)
     (list 'append append)
+    (list 'random-integer random-integer)
+    (list 'list-ref list-ref)
 	))
 (define (primitive-procedure-names)
   (map car primitive-procedures))
