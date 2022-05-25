@@ -672,3 +672,6 @@
   (let ((found-word (a-random-word-from word-list)))
     (set! *unparsed* (cdr *unparsed*))
     (list (car word-list) found-word)))
+
+; (a b 1) and (a c 1)
+; count would have been 0 at the end of the procedure.
