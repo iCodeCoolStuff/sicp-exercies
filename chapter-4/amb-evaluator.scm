@@ -3,6 +3,18 @@
 (define (ambeval exp env succeed fail)
   ((analyze exp) env succeed fail))
 
+(define (require? exp) (tagged-list? exp 'require))
+(define (require-predicate exp) (cadr exp))
+(define (analyze-require exp)
+  (let ((pproc (analyze (require-predicate exp))))
+    (lambda (env succeed fail)
+      (pproc env
+             (lambda (pred-value fail2)
+               (if (false? pred-value)
+                   (fail)
+                   (succeed 'ok fail2)))
+             fail))))
+
 (define (analyze-amb exp)
   (let ((cprocs (map analyze (amb-choices exp))))
     (lambda (env succeed fail)
@@ -32,6 +44,7 @@
 	((begin? exp) (analyze-sequence (begin-actions exp)))
 	((cond? exp) (analyze (cond->if exp)))
 	((amb? exp) (analyze-amb exp))
+	((require? exp) (analyze-require exp))
 	((application? exp) (analyze-application exp))
 	(else
 	  (error "Unknown expression type -- ANALYZE" exp))))
@@ -590,10 +603,10 @@
       (display ";;; There is no current problem")
       (driver-loop))))
 
-(ambeval (list 'define (list 'require 'p) (list 'if (list 'not 'p) (list 'amb)))
-         the-global-environment
-         (lambda (val next-alternative) val)
-         (lambda () 'fail))
+;(ambeval (list 'define (list 'require 'p) (list 'if (list 'not 'p) (list 'amb)))
+         ;the-global-environment
+         ;(lambda (val next-alternative) val)
+         ;(lambda () 'fail))
 
 (ambeval '(define (an-element-of items) (require (not (null? items))) (amb (car items) (an-element-of (cdr items))))
 	 the-global-environment
