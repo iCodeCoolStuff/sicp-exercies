@@ -45,8 +45,8 @@
 	 verb-list))
   (define (maybe-extend verb-phrase)
     (amb verb-phrase
-	 (maybe-extend (list verb-phrase
-			     (parse-prepositional-phrase)))))
+	 (maybe-extend (append verb-phrase
+			       (list (parse-prepositional-phrase))))))
   (maybe-extend (maybe-append-adverb (list 'verb-phrase (parse-word verbs)))))
 
 (define (parse-noun-phrase)
