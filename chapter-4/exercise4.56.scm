@@ -1,0 +1,8 @@
+; (and (supervisor ?name (Bitdiddle Ben))
+;      (address ?name ?where))
+; (and (and (salary (Bitdiddle Ben) ?amt)
+;           (lisp-value < ?amt ?x))
+;      (salary ?name ?x))
+; (and (and (supervisor ?name ?sup)
+;           (not (job ?sup (computer . ?_))))
+;      (job ?sup ?job))
