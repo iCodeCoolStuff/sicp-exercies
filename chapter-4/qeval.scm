@@ -67,7 +67,7 @@
 
 (define (disjoin disjuncts frame-stream)
   (if (empty-disjunction? disjuncts)
-      frame-stream
+      the-empty-stream
       (interleave-delayed
 	(qeval (first-disjunct disjuncts) frame-stream)
 	(delay (disjoin (rest-disjuncts disjuncts)

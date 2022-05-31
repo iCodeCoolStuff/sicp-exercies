@@ -1,7 +1,7 @@
 (assert! (address (Bitdiddle Ben) (Slumerville (Ridge Road) 10)))
 (assert! (job (Bitdiddle Ben) (computer wizard)))
 (assert! (salary (Bitdiddle Ben) 60000))
-(assert! (assert! (address (Hacker Alyssa P) (Cambridge (Mass Ave) 78))))
+(assert! (address (Hacker Alyssa P) (Cambridge (Mass Ave) 78)))
 (assert! (job (Hacker Alyssa P) (computer programmer)))
 (assert! (salary (Hacker Alyssa P) 40000))
 (assert! (supervisor (Hacker Alyssa P) (Bitdiddle Ben)))
