@@ -37,3 +37,7 @@
 (assert! (rule (meeting-time ?person ?day-and-time)
                (and (job ?person (?division . ?_))
 		    (meeting ?division ?day-and-time))))
+
+(assert! (rule (wheel ?person)
+               (and (supervisor ?middle-manager ?person)
+                    (supervisor ?x ?middle-manager))))
