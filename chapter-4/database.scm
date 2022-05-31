@@ -33,3 +33,8 @@
 (assert! (job (Aull DeWitt) (administration secretary)))
 (assert! (salary (Aull DeWitt) 25000))
 (assert! (supervisor (Aull DeWitt) (Warbucks Oliver)))
+(assert! (meeting accounting (Monday 9am)))
+(assert! (meeting administration (Monday 10am)))
+(assert! (meeting computer (Wednesday 3pm)))
+(assert! (meeting administration (Friday 1pm)))
+(assert! (meeting whole-company (Wednesday 4pm)))

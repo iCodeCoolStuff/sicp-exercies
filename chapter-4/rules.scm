@@ -23,3 +23,17 @@
 			 (or (same ?job1 ?job2)
 			     (can-do-job ?job1 ?job2)))
                 (not (same ?person1 ?person2)))))
+
+(assert! (rule (outranked-by ?staff-person ?boss)
+               (or (supervisor ?staff-person ?boss)
+                   (and (supervisor ?staff-person ?middle-manager)
+                        (outranked-by ?middle-manager ?boss)))))
+
+(assert! (rule (is-big-shot ?person)
+               (and (job ?person (?division . ?unused1))
+		    (not (and (job ?someone (?division . ?unused2))
+			      (outranked-by ?person ?someone))))))
+
+(assert! (rule (meeting-time ?person ?day-and-time)
+               (and (job ?person (?division . ?_))
+		    (meeting ?division ?day-and-time))))
