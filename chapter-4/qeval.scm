@@ -48,24 +48,22 @@
   (stream-flatmap empty-or-singleton-stream-of frame-stream))
 
 (define (qeval query frame-stream)
-  (define (result)
-		(let ((qproc (get (type query) 'qeval)))
-			(if qproc
-					(qproc (contents query) frame-stream)
-					(simple-query query frame-stream))))
-  (remove-duplicates query (result)))
+	(let ((qproc (get (type query) 'qeval)))
+		(if qproc
+				(qproc (contents query) frame-stream)
+				(remove-duplicates query (simple-query query frame-stream)))))
 
 (define (instantiate exp frame unbound-var-handler)
   (define (copy exp)
     (cond ((var? exp)
-	   (let ((binding (binding-in-frame exp frame)))
-	     (if binding
-	         (copy (binding-value binding))
-		 (unbound-var-handler exp frame))))
-	  ((pair? exp)
-	   (cons (copy (car exp)) (copy (cdr exp))))
-	  (else exp)))
-  (copy exp))
+	         (let ((binding (binding-in-frame exp frame)))
+						 (if binding
+								 (copy (binding-value binding))
+								 (unbound-var-handler exp frame))))
+					((pair? exp)
+					 (cons (copy (car exp)) (copy (cdr exp))))
+					(else exp)))
+	(copy exp))
 
 (define (simple-query query-pattern frame-stream)
   (stream-flatmap
