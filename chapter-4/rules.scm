@@ -41,3 +41,7 @@
 (assert! (rule (wheel ?person)
                (and (supervisor ?middle-manager ?person)
                     (supervisor ?x ?middle-manager))))
+
+(assert! (rule (last-pair (?x . ()) (?x))))
+(assert! (rule (last-pair (?x . ?y) ?z)
+               (last-pair ?y ?z)))
