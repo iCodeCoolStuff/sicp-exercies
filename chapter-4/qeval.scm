@@ -32,11 +32,28 @@
 (define get (operation-table 'lookup-proc))
 (define put (operation-table 'insert-proc!))
 
+(define unknown-pattern-var
+	(lambda (v f)
+		(error "Unknown pat var -- REMOVE-DUPLICATES" v)))
+
+(define (remove-duplicates query frame-stream)
+  (define duplicate-query-list '())
+	(define (empty-or-singleton-stream-of frame)
+		(define instantiated-query (instantiate query frame unknown-pattern-var))
+		(if (member instantiated-query duplicate-query-list)
+		    the-empty-stream
+		    (begin
+					(set! duplicate-query-list (cons instantiated-query duplicate-query-list))
+					(singleton-stream frame))))
+  (stream-flatmap empty-or-singleton-stream-of frame-stream))
+
 (define (qeval query frame-stream)
-  (let ((qproc (get (type query) 'qeval)))
-    (if qproc
-        (qproc (contents query) frame-stream)
-	(simple-query query frame-stream))))
+  (define (result)
+		(let ((qproc (get (type query) 'qeval)))
+			(if qproc
+					(qproc (contents query) frame-stream)
+					(simple-query query frame-stream))))
+  (remove-duplicates query (result)))
 
 (define (instantiate exp frame unbound-var-handler)
   (define (copy exp)
