@@ -24,10 +24,11 @@
 			     (can-do-job ?job1 ?job2)))
                 (not (same ?person1 ?person2)))))
 
-(assert! (rule (outranked-by ?staff-person ?boss)
-               (or (supervisor ?staff-person ?boss)
-                   (and (supervisor ?staff-person ?middle-manager)
-                        (outranked-by ?middle-manager ?boss)))))
+; old working rule
+;(assert! (rule (outranked-by ?staff-person ?boss)
+;               (or (supervisor ?staff-person ?boss)
+;                   (and (supervisor ?staff-person ?middle-manager)
+;                        (outranked-by ?middle-manager ?boss)))))
 
 (assert! (rule (is-big-shot ?person)
                (and (job ?person (?division . ?unused1))
@@ -45,3 +46,12 @@
 (assert! (rule (last-pair (?x . ()) (?x))))
 (assert! (rule (last-pair (?x . ?y) ?z)
                (last-pair ?y ?z)))
+
+(assert! (married Minnie Mickey))
+(assert! (rule (married ?x ?y) (married ?y ?x)))
+
+; This broken rule works thanks to the loop detector!
+(assert! (rule (outranked-by ?staff-person ?boss)
+      (or (supervisor ?staff-person ?boss)
+          (and (outranked-by ?middle-manager ?boss)
+               (supervisor ?staff-person ?middle-manager)))))
