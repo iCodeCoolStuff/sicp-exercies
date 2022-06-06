@@ -42,7 +42,7 @@
                                                             unify-result)))
             (cond ((equivalent-query-in-history? prev-pat) the-empty-stream)
             (else
-              (add-to-history! prev-pat)
+              (if (not (equal? prev-pat '(always-true))) (add-to-history! prev-pat))
               (qeval (rule-body clean-rule)
                (singleton-stream unify-result)))))))))
 
