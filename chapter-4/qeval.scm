@@ -41,17 +41,17 @@
 	(define (empty-or-singleton-stream-of frame)
 		(define instantiated-query (instantiate query frame unknown-pattern-var))
 		(if (member instantiated-query duplicate-query-list)
-		    the-empty-stream
+        the-empty-stream
 		    (begin
 					(set! duplicate-query-list (cons instantiated-query duplicate-query-list))
 					(singleton-stream frame))))
   (stream-flatmap empty-or-singleton-stream-of frame-stream))
 
 (define (qeval query frame-stream)
-	(let ((qproc (get (type query) 'qeval)))
-		(if qproc
-				(qproc (contents query) frame-stream)
-				(remove-duplicates query (simple-query query frame-stream)))))
+  (let ((qproc (get (type query) 'qeval)))
+    (if qproc
+        (qproc (contents query) frame-stream)
+        (simple-query query frame-stream))))
 
 (define (instantiate exp frame unbound-var-handler)
   (define (copy exp)
@@ -66,12 +66,13 @@
 	(copy exp))
 
 (define (simple-query query-pattern frame-stream)
-  (stream-flatmap
-    (lambda (frame)
-      (stream-append-delayed
-	(find-assertions query-pattern frame)
-	(delay (apply-rules query-pattern frame))))
-    frame-stream))
+  (remove-duplicates query-pattern
+    (stream-flatmap
+      (lambda (frame)
+              (stream-append-delayed
+                (find-assertions query-pattern frame)
+                (delay (apply-rules query-pattern frame))))
+            frame-stream)))
 
 (define (conjoin conjuncts frame-stream)
   (if (empty-conjunction? conjuncts)
@@ -130,37 +131,64 @@
 
 (define (pattern-match pat dat frame)
   (cond ((eq? frame 'failed) 'failed)
-	((equal? pat dat) frame)
-	((var? pat) (extend-if-consistent pat dat frame))
-	((and (pair? pat) (pair? dat))
-	 (pattern-match (cdr pat)
-			(cdr dat)
-			(pattern-match (car pat)
-				       (car dat)
-				       frame)))
-	(else 'failed)))
+        ((equal? pat dat) frame)
+        ((var? pat) (extend-if-consistent pat dat frame))
+        ((and (pair? pat) (pair? dat))
+         (pattern-match (cdr pat)
+                        (cdr dat)
+                        (pattern-match (car pat)
+                                 (car dat)
+                                 frame)))
+       (else 'failed)))
 
 (define (extend-if-consistent var dat frame)
   (let ((binding (binding-in-frame var frame)))
     (if binding
         (pattern-match (binding-value binding) dat frame)
-	(extend var dat frame))))
+	      (extend var dat frame))))
 
 (define (apply-rules pattern frame)
-  (stream-flatmap (lambda (rule)
-		    (apply-a-rule rule pattern frame))
-		  (fetch-rules pattern frame)))
+  (stream-flatmap
+    (lambda (rule) (apply-a-rule rule pattern frame))
+		(fetch-rules pattern frame)))
+
+(define (equivalent-query-in-history? query)
+  (define (inner history)
+    (define (tree-walk p1 p2)
+      (cond ((and (var? p1) (var? p2)) true)
+            ((equal? p1 p2) true)
+            ((and (pair? p1) (pair? p2))
+             (and (tree-walk (car p1) (car p2))
+                  (tree-walk (cdr p1) (cdr p2))))
+            (else false)))
+    (if (null? history)
+        false
+        (let ((prev-query (car history)))
+            (if (tree-walk query prev-query)
+                true
+                (inner (cdr history))))))
+  (inner THE-HISTORY))
+
+(define keep-unbound-vars (lambda (v f) v))
+(define (instantiate-keeping-unbound-vars pat frame)
+  (instantiate pat frame keep-unbound-vars))
 
 (define (apply-a-rule rule query-pattern query-frame)
+  (add-to-history! (instantiate-keeping-unbound-vars query-pattern query-frame))
   (let ((clean-rule (rename-variables-in rule)))
     (let ((unify-result
-	    (unify-match query-pattern
-			 (conclusion clean-rule)
-			 query-frame)))
+      (unify-match query-pattern
+       (conclusion clean-rule)
+       query-frame)))
       (if (eq? unify-result 'failed)
-	  the-empty-stream
-	  (qeval (rule-body clean-rule)
-		 (singleton-stream unify-result))))))
+          the-empty-stream
+          (let ((prev-pat (instantiate-keeping-unbound-vars (rule-body clean-rule)
+                                                            unify-result)))
+            (cond ((equivalent-query-in-history? prev-pat) the-empty-stream)
+            (else
+              (add-to-history! prev-pat)
+              (qeval (rule-body clean-rule)
+               (singleton-stream unify-result)))))))))
 
 (define (rename-variables-in rule)
   (let ((rule-application-id (new-rule-application-id)))
@@ -422,6 +450,12 @@
   (newline)
   (display x))
 
+(define THE-HISTORY '())
+(define (add-to-history! query)
+  (set! THE-HISTORY (cons query THE-HISTORY)))
+(define (clear-history!)
+  (set! THE-HISTORY '()))
+
 (define input-prompt ";;; Query input:")
 (define output-prompt ";;; Query results:")
 (define (query-driver-loop)
@@ -443,6 +477,7 @@
 			       (lambda (v f)
 				 (contract-question-mark v))))
 		(qeval q (singleton-stream '()))))
+    (clear-history!)
 	  (query-driver-loop)))))
 
 (query-driver-loop)
