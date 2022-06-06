@@ -55,3 +55,12 @@
       (or (supervisor ?staff-person ?boss)
           (and (outranked-by ?middle-manager ?boss)
                (supervisor ?staff-person ?middle-manager)))))
+
+(assert! (rule (reverse () ())))
+(assert! (rule (reverse (?x) (?x))))
+(assert! (rule (reverse (?x . ?y) ?z)
+               (and (reverse ?y ?w)
+                    (append-to-form ?w (?x) ?z))))
+(assert! (rule (reverse (?x . ?y) ?z)
+               (and (append-to-form ?w (?x) ?z)
+                    (reverse ?y ?w))))
