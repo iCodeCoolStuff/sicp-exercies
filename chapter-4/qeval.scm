@@ -34,7 +34,7 @@
 
 (define unknown-pattern-var
 	(lambda (v f)
-		(error "Unknown pat var -- REMOVE-DUPLICATES" v)))
+		(contract-question-mark v)))
 
 (define (remove-duplicates query frame-stream)
   (define duplicate-query-list '())
@@ -66,13 +66,12 @@
 	(copy exp))
 
 (define (simple-query query-pattern frame-stream)
-  (remove-duplicates query-pattern
-    (stream-flatmap
-      (lambda (frame)
-              (stream-append-delayed
-                (find-assertions query-pattern frame)
-                (delay (apply-rules query-pattern frame))))
-            frame-stream)))
+  (stream-flatmap
+    (lambda (frame)
+            (stream-append-delayed
+              (find-assertions query-pattern frame)
+              (delay (apply-rules query-pattern frame))))
+          frame-stream))
 
 (define (conjoin conjuncts frame-stream)
   (if (empty-conjunction? conjuncts)
@@ -184,9 +183,10 @@
           the-empty-stream
           (let ((prev-pat (instantiate-keeping-unbound-vars (rule-body clean-rule)
                                                             unify-result)))
-            (cond ((equivalent-query-in-history? prev-pat) the-empty-stream)
+            (cond ((equivalent-query-in-history? prev-pat)
+             the-empty-stream)
             (else
-              (add-to-history! prev-pat)
+              (if (not (equal? prev-pat '(always-true))) (add-to-history! prev-pat))
               (qeval (rule-body clean-rule)
                (singleton-stream unify-result)))))))))
 
@@ -427,7 +427,6 @@
 (define (extend variable value frame)
   (cons (make-binding variable value) frame))
 
-
 (put 'and 'qeval conjoin)
 (put 'or 'qeval disjoin)
 (put 'not 'qeval negate)
@@ -476,7 +475,7 @@
 			       frame
 			       (lambda (v f)
 				 (contract-question-mark v))))
-		(qeval q (singleton-stream '()))))
+		(remove-duplicates q (qeval q (singleton-stream '())))))
     (clear-history!)
 	  (query-driver-loop)))))
 
