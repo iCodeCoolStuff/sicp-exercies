@@ -64,3 +64,16 @@
 (assert! (rule (reverse (?x . ?y) ?z)
                (and (append-to-form ?w (?x) ?z)
                     (reverse ?y ?w))))
+
+(assert! (rule (grandson ?grandfather ?grandson)
+               (and (son ?grandfather ?father)
+                    (son ?father ?grandson))))
+
+(assert! (rule (son ?m ?s)
+               (and (wife ?m ?w)
+                    (son ?w ?s))))
+
+(assert! (rule ((grandson) ?x ?y) (grandson ?x ?y)))
+(assert! (rule ((great . ?rel) ?x ?y)
+               (and (?rel ?x ?z)
+                    (son ?z ?y))))
