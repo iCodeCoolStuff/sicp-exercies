@@ -32,15 +32,6 @@
 
 (define (lisp-value call frame-stream)
   (stream-flatmap
-   (lambda (frame)
-     (if (execute
-          (instantiate
-           call
-           frame
-           (lambda (v f)
-             (error "Unknown pat var -- LISP-VALUE" v))))
-         (singleton-stream frame)
-         the-empty-stream))
      (let ((proc (instantiate call frame return-var)))
        (cond ((any-vars? (args proc))
               (singleton-stream (add-promises (filter var? (args proc)) frame call)))
