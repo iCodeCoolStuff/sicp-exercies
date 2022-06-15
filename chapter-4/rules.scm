@@ -25,10 +25,10 @@
                 (not (same ?person1 ?person2)))))
 
 ; old working rule
-;(assert! (rule (outranked-by ?staff-person ?boss)
-;               (or (supervisor ?staff-person ?boss)
-;                   (and (supervisor ?staff-person ?middle-manager)
-;                        (outranked-by ?middle-manager ?boss)))))
+(assert! (rule (outranked-by ?staff-person ?boss)
+               (or (supervisor ?staff-person ?boss)
+                   (and (supervisor ?staff-person ?middle-manager)
+                        (outranked-by ?middle-manager ?boss)))))
 
 (assert! (rule (is-big-shot ?person)
                (and (job ?person (?division . ?unused1))
@@ -51,10 +51,10 @@
 (assert! (rule (married ?x ?y) (married ?y ?x)))
 
 ; This broken rule works thanks to the loop detector!
-(assert! (rule (outranked-by ?staff-person ?boss)
-      (or (supervisor ?staff-person ?boss)
-          (and (outranked-by ?middle-manager ?boss)
-               (supervisor ?staff-person ?middle-manager)))))
+;(assert! (rule (outranked-by ?staff-person ?boss)
+;      (or (supervisor ?staff-person ?boss)
+;          (and (outranked-by ?middle-manager ?boss)
+;               (supervisor ?staff-person ?middle-manager)))))
 
 (assert! (rule (reverse () ())))
 (assert! (rule (reverse (?x) (?x))))
