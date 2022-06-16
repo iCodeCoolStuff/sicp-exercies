@@ -13,7 +13,9 @@
   ((name *)
    (inputs (register product) (register counter)))
   ((name +)
-   (inputs (register counter) (constant 1)))))
+   (inputs (register counter) (constant 1)))
+  ((name >)
+   (inputs (register counter) (constant n)))))
 
 (controller
  test-gt
