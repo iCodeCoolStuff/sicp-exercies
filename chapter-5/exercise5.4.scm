@@ -75,5 +75,3 @@
    (assign val (const 1))
    (goto (reg continue))
  expt-done)
-
-; Controller diagrams can be inferred from the language above
