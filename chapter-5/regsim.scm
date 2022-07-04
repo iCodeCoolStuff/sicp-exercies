@@ -101,7 +101,8 @@
         (flag (make-register 'flag))
         (stack (make-stack))
         (the-instruction-sequence '())
-        (instruction-count 0))
+        (instruction-count 0)
+        (is-tracing false))
     (let ((the-ops
            (list (list 'initialize-stack
                        (lambda () (stack 'initialize)))
@@ -129,6 +130,10 @@
           (if (null? insts)
               'done
               (begin
+                (if is-tracing
+                    (begin
+                      (display (instruction-text (car insts)))
+                      (newline)))
                 (set! instruction-count (+ instruction-count 1))
                 ((instruction-execution-proc (car insts)))
                 (execute)))))
@@ -159,6 +164,8 @@
                                                                           (filter stacked? (dispatch 'get-instructions)))))
               ((eq? message 'get-sources) sources)
               ((eq? message 'get-register-names) (map car register-table))
+              ((eq? message 'trace-on) (set! is-tracing #t))
+              ((eq? message 'trace-off) (set! is-tracing #f))
               ((eq? message 'get-instruction-count)
                (let ((old-count instruction-count))
                  (set! instruction-count 0)
