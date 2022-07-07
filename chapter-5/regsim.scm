@@ -132,11 +132,18 @@
               (begin
                 (if is-tracing
                     (begin
+                      (if (not (null? (preceeding-label (car insts))))
+                          (begin
+                            (display (preceeding-label (car insts)))
+                            (display ":")
+                            (newline)
+                            ))
+                      (display "  ")
                       (display (instruction-text (car insts)))
-                      (newline)))
+                      (newline)
                 (set! instruction-count (+ instruction-count 1))
                 ((instruction-execution-proc (car insts)))
-                (execute)))))
+                (execute)))))))
       (define (sources register)
         (map
          (lambda (inst)
@@ -275,10 +282,13 @@
        (lambda (insts labels)
          (let ((next-inst (car text)))
            (if (symbol? next-inst)
-               (receive insts
-                        (cons (make-label-entry next-inst
-                                                insts)
-                              labels))
+               (begin
+                 (if (not (null? insts))
+                     (set-preceeding-label! (car insts) next-inst))
+                 (receive insts
+                          (cons (make-label-entry next-inst
+                                                  insts)
+                                labels)))
                (receive (cons (make-instruction next-inst)
                               insts)
                         labels)))))))
@@ -298,16 +308,22 @@
      insts)))
 
 (define (make-instruction text)
-  (cons text '()))
+  (list text '() '()))
 
 (define (instruction-text inst)
   (car inst))
 
 (define (instruction-execution-proc inst)
-  (cdr inst))
+  (cadr inst))
+
+(define (preceeding-label inst)
+  (caddr inst))
 
 (define (set-instruction-execution-proc! inst proc)
-  (set-cdr! inst proc))
+  (set-car! (cdr inst) proc))
+
+(define (set-preceeding-label! inst label)
+  (set-car! (cddr inst) label))
 
 (define (make-label-entry label-name insts)
   (cons label-name insts))
