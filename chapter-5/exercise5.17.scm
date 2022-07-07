@@ -14,10 +14,10 @@
                       (newline)))
                 (display "  ")
                 (display (instruction-text (car insts)))
-                (newline)
+                (newline)))
           (set! instruction-count (+ instruction-count 1))
           ((instruction-execution-proc (car insts)))
-          (execute)))))))
+          (execute)))))
 
 ; -------------------------------------
 

@@ -117,7 +117,8 @@
         (stack (make-stack))
         (the-instruction-sequence '())
         (instruction-count 0)
-        (is-tracing false))
+        (is-tracing false)
+        (breakpoints '()))
     (let ((the-ops
            (list (list 'initialize-stack
                        (lambda () (stack 'initialize)))
@@ -155,10 +156,10 @@
                             ))
                       (display "  ")
                       (display (instruction-text (car insts)))
-                      (newline)
+                      (newline)))
                 (set! instruction-count (+ instruction-count 1))
                 ((instruction-execution-proc (car insts)))
-                (execute)))))))
+                (execute)))))
       (define (sources register)
         (map
          (lambda (inst)
