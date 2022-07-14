@@ -22,6 +22,7 @@
 ;; print-result in the machine controller below
 ;;**Also choose the desired make-stack version in regsim.scm
 
+
 (define eceval-operations
   (list
    ;;primitive Scheme operations
@@ -42,6 +43,8 @@
    (list 'lambda-parameters lambda-parameters)
    (list 'lambda-body lambda-body)
    (list 'if? if?)
+   (list 'cond? cond?)
+   (list 'cond->if cond->if)
    (list 'if-predicate if-predicate)
    (list 'if-consequent if-consequent)
    (list 'if-alternative if-alternative)
@@ -129,6 +132,8 @@ eval-dispatch
   (branch (label ev-definition))
   (test (op if?) (reg exp))
   (branch (label ev-if))
+  (test (op cond?) (reg exp))
+  (branch (label ev-cond))
   (test (op lambda?) (reg exp))
   (branch (label ev-lambda))
   (test (op begin?) (reg exp))
@@ -259,6 +264,9 @@ ev-if-alternative
 ev-if-consequent
   (assign exp (op if-consequent) (reg exp))
   (goto (label eval-dispatch))
+ev-cond
+  (assign exp (op cond->if) (reg exp))
+  (goto (label ev-if))
 
 ev-assignment
   (assign unev (op assignment-variable) (reg exp))

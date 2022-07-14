@@ -10,3 +10,5 @@
 (load "ch5-eceval-support")		;simulation of machine operations
 
 (load "ch5-eceval")			;eceval itself
+(define the-global-environment (setup-environment))
+(start eceval)
