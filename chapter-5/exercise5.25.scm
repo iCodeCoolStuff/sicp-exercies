@@ -1,26 +1,4 @@
-;;;;EXPLICIT-CONTROL EVALUATOR FROM SECTION 5.4 OF
-;;;; STRUCTURE AND INTERPRETATION OF COMPUTER PROGRAMS
-
-;;;;Matches code in ch5.scm
-
-;;; To use it
-;;; -- load "load-eceval.scm", which loads this file and the
-;;;    support it needs (including the register-machine simulator)
-
-;;; -- To initialize and start the machine, do
-
-;: (define the-global-environment (setup-environment))
-
-;: (start eceval)
-
-;; To restart, can do just
-;: (start eceval)
-;;;;;;;;;;
-
-
-;;**NB. To [not] monitor stack operations, comment in/[out] the line after
-;; print-result in the machine controller below
-;;**Also choose the desired make-stack version in regsim.scm
+; Does not work with recursive functions
 
 (define (delay-it exp env)
   (list 'thunk exp env))
