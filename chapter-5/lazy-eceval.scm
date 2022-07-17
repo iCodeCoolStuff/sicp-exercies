@@ -1,27 +1,3 @@
-;;;;EXPLICIT-CONTROL EVALUATOR FROM SECTION 5.4 OF
-;;;; STRUCTURE AND INTERPRETATION OF COMPUTER PROGRAMS
-
-;;;;Matches code in ch5.scm
-
-;;; To use it
-;;; -- load "load-eceval.scm", which loads this file and the
-;;;    support it needs (including the register-machine simulator)
-
-;;; -- To initialize and start the machine, do
-
-;: (define the-global-environment (setup-environment))
-
-;: (start eceval)
-
-;; To restart, can do just
-;: (start eceval)
-;;;;;;;;;;
-
-
-;;**NB. To [not] monitor stack operations, comment in/[out] the line after
-;; print-result in the machine controller below
-;;**Also choose the desired make-stack version in regsim.scm
-
 (define (delay-it exp env)
   (list 'thunk exp env))
 
@@ -32,16 +8,24 @@
 
 (define (thunk-env thunk) (caddr thunk))
 
+(define (list-of-delayed-args exps env)
+  (if (no-operands? exps)
+      '()
+      (cons (delay-it (first-operand exps) env)
+            (list-of-delayed-args (rest-operands exps)
+                                  env))))
+
 (define eceval-operations
   (list
    ;;primitive Scheme operations
    (list 'read read)
 
    ;; New stuff
-   (list 'delay-it delay-it)
-   (list 'thunk? thunk?)
    (list 'thunk-exp thunk-exp)
    (list 'thunk-env thunk-env)
+   (list 'thunk? thunk?)
+   (list 'delay-it delay-it)
+   (list 'list-of-delayed-args list-of-delayed-args)
 
    ;;operations in syntax.scm
    (list 'self-evaluating? self-evaluating?)
@@ -116,7 +100,7 @@ read-eval-print-loop
   (assign exp (op read))
   (assign env (op get-global-environment))
   (assign continue (label print-result))
-  (goto (label actual-value)) ; changed
+  (goto (label eval-dispatch))
 print-result
 ;;**following instruction optional -- if use it, need monitored stack
   (perform (op print-stack-statistics))
@@ -142,8 +126,6 @@ signal-error
 eval-dispatch
   (test (op self-evaluating?) (reg exp))
   (branch (label ev-self-eval))
-  (test (op thunk?) (reg exp))
-  (branch (label ev-thunk))
   (test (op variable?) (reg exp))
   (branch (label ev-variable))
   (test (op quoted?) (reg exp))
@@ -164,9 +146,7 @@ eval-dispatch
   (branch (label ev-application))
   (goto (label unknown-expression-type))
 
-ev-thunk
-  (assign val (reg exp))
-  (goto (reg continue))
+
 
 ev-self-eval
   (assign val (reg exp))
@@ -184,6 +164,23 @@ ev-lambda
               (reg unev) (reg exp) (reg env))
   (goto (reg continue))
 
+
+actual-value
+  (save continue)
+  (assign continue (label force-it))
+  (goto (label eval-dispatch))
+force-it
+  (test (op thunk?) (reg val))
+  (branch (label ev-thunk))
+  (restore continue)
+  (goto (reg continue))
+ev-thunk
+  (assign exp (op thunk-exp) (reg val))
+  (assign env (op thunk-env) (reg val))
+  (restore continue) ;; delete it so force knows where to go
+  (goto (label actual-value))
+
+
 ev-application
   (save continue)
   (save env)
@@ -191,37 +188,49 @@ ev-application
   (save unev)
   (assign exp (op operator) (reg exp))
   (assign continue (label ev-appl-did-operator))
-  (goto (label actual-value)) ; changed
+  (goto (label actual-value))
 ev-appl-did-operator
   (restore unev)
   (restore env)
-  (assign argl (op empty-arglist))
   (assign proc (reg val))
-  (test (op no-operands?) (reg unev))
-  (branch (label apply-dispatch))
+  (assign argl (op empty-arglist))
+  ;(test (op no-operands?) (reg unev))
+  ;(branch (label apply-dispatch))
+  (goto (label apply-dispatch))
+hello
   (save proc)
 ev-appl-operand-loop
-  (test (op no-more-exps?) (reg unev))
-  (branch (label ev-appl-accum-last-arg))
+  (save argl)
   (assign exp (op first-operand) (reg unev))
-  (assign val (op delay-it) (reg exp) (reg env))
+  (test (op last-operand?) (reg unev))
+  (branch (label ev-appl-last-arg))
+  (save env)
+  (save unev)
+  (assign continue (label ev-appl-accumulate-arg))
+  (goto (label actual-value))
+ev-appl-accumulate-arg
+  (restore unev)
+  (restore env)
+  (restore argl)
   (assign argl (op adjoin-arg) (reg val) (reg argl))
   (assign unev (op rest-operands) (reg unev))
   (goto (label ev-appl-operand-loop))
+ev-appl-last-arg
+  (assign continue (label ev-appl-accum-last-arg))
+  (goto (label actual-value))
 ev-appl-accum-last-arg
+  (restore argl)
+  (assign argl (op adjoin-arg) (reg val) (reg argl))
   (restore proc)
-  (goto (label apply-dispatch))
+  (goto (label primitive-apply))
 apply-dispatch
   (test (op primitive-procedure?) (reg proc))
-  (branch (label primitive-apply))
+  (branch (label hello))
   (test (op compound-procedure?) (reg proc))  
   (branch (label compound-apply))
   (goto (label unknown-procedure-type))
 
 primitive-apply
-  (assign continue (label primitive-a))
-  (goto (label list-of-arg-values))
-primitive-a
   (assign val (op apply-primitive-procedure)
               (reg proc)
               (reg argl))
@@ -229,59 +238,13 @@ primitive-a
   (goto (reg continue))
 
 compound-apply
-  (assign unev (op procedure-parameters) (reg proc))
+  (assign argl (op list-of-delayed-args) (reg unev) (reg env))
   (assign env (op procedure-environment) (reg proc))
+  (assign unev (op procedure-parameters) (reg proc))
   (assign env (op extend-environment)
               (reg unev) (reg argl) (reg env))
   (assign unev (op procedure-body) (reg proc))
   (goto (label ev-sequence))
-
-list-of-arg-values
-  (save continue)
-  (assign unev (reg argl))
-  (assign argl (op empty-arglist))
-  (goto (label argv-iter))
-argv-iter
-  (test (op no-more-exps?) (reg unev))
-  (branch (label argv-end))
-  (assign exp (op first-operand) (reg unev))
-  (assign continue (label argv-cont))
-  (goto (label actual-value))
-argv-cont
-  (assign argl (op adjoin-arg) (reg exp) (reg argl))
-  (assign unev (op rest-operands) (reg unev))
-  (goto (label argv-iter))
-argv-end
-  (restore continue)
-  (goto (reg continue))
-
-actual-value
-  (save continue)
-  (assign continue (label actual-value-2))
-  (goto (label eval-dispatch))
-actual-value-2
-  (restore continue)
-  (assign exp (reg val))
-  (goto (label force-it))
-
-force-it
-  (test (op thunk?) (reg exp))
-  (branch (label prepare-thunk))
-  (assign val (reg exp))
-  (goto (reg continue))
-  ;(goto (label force-end))
-prepare-thunk
-  (save env)
-  (assign env (op thunk-env) (reg exp))
-  (assign exp (op thunk-exp) (reg exp))
-  (save continue)
-  (assign continue (label force-end))
-  (goto (label actual-value))
-force-end
-  (restore continue)
-  (restore env)
-  (assign val (reg exp))
-  (goto (reg continue))
 
 ;;;SECTION 5.4.2
 ev-begin
@@ -341,7 +304,7 @@ ev-clauses
   (save unev)
   (assign exp (op cond-predicate) (reg exp))
   (assign continue (label ev-cond-pred))
-  (goto (label actual-value))
+  (goto (label eval-dispatch))
 ev-cond-pred
   (restore unev)
   (restore env)
